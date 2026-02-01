@@ -29,6 +29,7 @@ var target_score: int = 0
 var anim_delay: float = 0.0
 var _score_value_label: Label = null
 var _is_victory: bool = false
+var _is_animating: bool = false
 
 
 func _ready():
@@ -72,6 +73,7 @@ func _process(delta: float):
 
 func show_game_over(score: int, wave: int, extra: Dictionary = {}):
 	_is_victory = false
+	_is_animating = false
 	_cleanup_dynamic_groups()
 	_style_panel()
 
@@ -137,12 +139,12 @@ func _get_grade_color(grade: String) -> Color:
 
 func _get_grade_size(grade: String) -> int:
 	match grade:
-		"S": return 24
-		"A": return 22
-		"B": return 20
-		"C": return 18
-		"D": return 18
-		_: return 18
+		"S": return UIColors.FONT_TITLE + 8   # 24
+		"A": return UIColors.FONT_TITLE + 6   # 22
+		"B": return UIColors.FONT_TITLE + 4   # 20
+		"C": return UIColors.FONT_TITLE + 2   # 18
+		"D": return UIColors.FONT_TITLE + 2   # 18
+		_: return UIColors.FONT_TITLE + 2
 
 
 func _show_grade(grade: String):
@@ -362,7 +364,7 @@ func _style_panel():
 func _style_game_over_label():
 	if not game_over_label:
 		return
-	game_over_label.add_theme_font_size_override("font_size", 18)
+	game_over_label.add_theme_font_size_override("font_size", UIColors.FONT_TITLE + 2)
 	game_over_label.add_theme_color_override("font_color", UIColors.RED)
 	game_over_label.add_theme_color_override("font_outline_color", Color(0.3, 0.0, 0.0))
 	game_over_label.add_theme_constant_override("outline_size", 3)
@@ -441,12 +443,12 @@ func _style_quit_button():
 	quit_btn.add_theme_stylebox_override("normal", sb_normal)
 
 	var sb_hover := sb_normal.duplicate()
-	sb_hover.bg_color = Color(0.25, 0.08, 0.1, 0.95)
-	sb_hover.border_color = Color(0.85, 0.4, 0.45, 0.8)
+	sb_hover.bg_color = Color(UIColors.BTN_DANGER_BG.r * 1.4, UIColors.BTN_DANGER_BG.g * 1.3, UIColors.BTN_DANGER_BG.b * 1.25, 0.95)
+	sb_hover.border_color = Color(UIColors.BTN_DANGER_BORDER.r * 1.2, UIColors.BTN_DANGER_BORDER.g * 1.3, UIColors.BTN_DANGER_BORDER.b * 1.3, 0.8)
 	quit_btn.add_theme_stylebox_override("hover", sb_hover)
 
 	var sb_pressed := sb_normal.duplicate()
-	sb_pressed.bg_color = Color(0.12, 0.04, 0.05, 1.0)
+	sb_pressed.bg_color = Color(UIColors.BTN_DANGER_BG.r * 0.67, UIColors.BTN_DANGER_BG.g * 0.67, UIColors.BTN_DANGER_BG.b * 0.63, 1.0)
 	quit_btn.add_theme_stylebox_override("pressed", sb_pressed)
 
 	var sb_focus := sb_hover.duplicate()
@@ -614,6 +616,7 @@ func _build_stats_grid(extra: Dictionary):
 
 func show_victory(score: int, wave: int, extra: Dictionary = {}):
 	_is_victory = true
+	_is_animating = false
 	_cleanup_dynamic_groups()
 
 	if game_over_label:
@@ -662,6 +665,9 @@ func show_victory(score: int, wave: int, extra: Dictionary = {}):
 # ---------------------------------------------------------------------------
 
 func _on_restart():
+	if _is_animating:
+		return
+	_is_animating = true
 	hide()
 	animating_score = false
 	set_process(false)
@@ -670,11 +676,16 @@ func _on_restart():
 		game_over_label.add_theme_color_override("font_color", UIColors.RED)
 		game_over_label.add_theme_color_override("font_outline_color", Color(0.3, 0.0, 0.0))
 	_style_panel()
+	_is_animating = false
 	restart_requested.emit()
 
 
 func _on_quit():
+	if _is_animating:
+		return
+	_is_animating = true
 	hide()
 	animating_score = false
 	set_process(false)
+	_is_animating = false
 	quit_requested.emit()

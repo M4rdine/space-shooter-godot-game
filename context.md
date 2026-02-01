@@ -680,6 +680,47 @@ fever_system.fever_ended -> game._on_fever_ended
 - [x] Uses `wave_spawner.get_current_flavor_name()`, only appends if non-empty
 - [x] Boss waves and NORMAL waves show plain label (no suffix)
 
+### Sprint 12 - UI Polish Pass (Yuki)
+
+**trophy_popup.gd:**
+- [x] Hardcoded colors replaced with UIColors.TROPHY_NAME, TROPHY_BONUS, PANEL_BG
+- [x] Font sizes: 10→UIColors.FONT_BODY, 8→UIColors.FONT_SMALL
+
+**wave_announce.gd:**
+- [x] Wave label font_size 11→UIColors.FONT_HEADING (12)
+- [x] Boss WARNING font_size 16→UIColors.FONT_TITLE
+- [x] All hardcoded colors replaced: cyan text→UIColors.CYAN, red warning→UIColors.BOSS_WARNING, outline→UIColors.OUTLINE_BLACK, red lines→UIColors.RED
+- [x] Accent line colors derived from UIColors.CYAN
+
+**boss_hp_bar.gd:**
+- [x] Boss name font_size 8→UIColors.FONT_SMALL
+- [x] WARNING label font_size 7→UIColors.FONT_TINY
+
+**game_over.gd:**
+- [x] Added `_is_animating` guard to `_on_restart()` and `_on_quit()` to prevent double-trigger
+- [x] `_is_animating` reset in `show_game_over()` and `show_victory()`
+- [x] Grade font sizes now derived from UIColors.FONT_TITLE (+ offset per grade)
+- [x] Game over title font_size 18→UIColors.FONT_TITLE + 2
+- [x] Quit button hover/pressed colors derived from UIColors.BTN_DANGER_BG/BORDER
+
+**upgrade_menu.gd (previous sprint):**
+- [x] Full rewrite with UIColors constants, keyboard focus chain, fade-out animation
+
+**hud.gd (previous sprint):**
+- [x] All 40+ hardcoded colors→UIColors, font sizes normalized to tiers
+
+**pause_menu.gd (previous sprint):**
+- [x] UIColors integration
+
+### Bug Fix - Boss Dying During Upgrade Menu (P0)
+
+**Root cause:** weapon_manager.gd uses `_process()` for all weapon firing, but game.gd was calling `set_physics_process(false)` which only stops `_physics_process()`. Weapons kept firing during upgrade menu.
+
+**game.gd fixes:**
+- [x] Changed all 3 `set_physics_process()` calls to `set_process()` for weapon_manager (start_game, _on_wave_completed, _on_upgrade_selected)
+- [x] New `_clear_effect_weapons()`: removes active lightning/shockwave/flamethrower effect nodes
+- [x] `_clear_effect_weapons()` called in `_on_wave_completed()` alongside `_clear_player_bullets()`
+
 ### Bug Fix - UI Layout Responsiveness (game_over.gd + upgrade_menu.gd)
 
 **Root cause:** Dynamically created UI nodes used `SIZE_SHRINK_CENTER` inside VBoxContainers, causing them to collapse to minimum width. Additionally, upgrade cards manipulated `position.y` for animation, which breaks managed layout (layout_mode=2).

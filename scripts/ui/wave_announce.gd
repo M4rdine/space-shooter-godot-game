@@ -52,12 +52,12 @@ func _draw_wave_label(t: float):
 	if !font:
 		return
 
-	var font_size: int = 11
+	var font_size: int = UIColors.FONT_HEADING
 	var alpha = 1.0
 	if t > 0.7:
 		alpha = 1.0 - ((t - 0.7) / 0.3)
-	var text_color = Color(0.2, 0.8, 1.0, alpha)
-	var glow_color = Color(0.1, 0.5, 1.0, alpha * 0.3)
+	var text_color = Color(UIColors.CYAN.r, UIColors.CYAN.g, UIColors.CYAN.b, alpha)
+	var glow_color = Color(UIColors.CYAN.r * 0.5, UIColors.CYAN.g * 0.6, UIColors.CYAN.b, alpha * 0.3)
 
 	var text_width = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size).x
 	var draw_x = x_offset - text_width * 0.5
@@ -68,7 +68,7 @@ func _draw_wave_label(t: float):
 
 	# Black outline
 	for offset in [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]:
-		draw_string(font, Vector2(draw_x + offset.x, draw_y + offset.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(0, 0, 0, text_color.a * 0.8))
+		draw_string(font, Vector2(draw_x + offset.x, draw_y + offset.y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, Color(UIColors.OUTLINE_BLACK.r, UIColors.OUTLINE_BLACK.g, UIColors.OUTLINE_BLACK.b, text_color.a * 0.8))
 
 	# Main text
 	draw_string(font, Vector2(draw_x, draw_y), text, HORIZONTAL_ALIGNMENT_LEFT, -1, font_size, text_color)
@@ -77,8 +77,9 @@ func _draw_wave_label(t: float):
 	if t >= 0.15 and t <= 0.85:
 		var line_alpha = text_color.a * 0.4
 		var line_y = draw_y + 4
-		draw_line(Vector2(20, line_y), Vector2(draw_x - 8, line_y), Color(0.2, 0.7, 1.0, line_alpha), 1.0)
-		draw_line(Vector2(draw_x + text_width + 8, line_y), Vector2(VIEWPORT_W - 20, line_y), Color(0.2, 0.7, 1.0, line_alpha), 1.0)
+		var line_color = Color(UIColors.CYAN.r, UIColors.CYAN.g * 0.88, UIColors.CYAN.b, line_alpha)
+		draw_line(Vector2(20, line_y), Vector2(draw_x - 8, line_y), line_color, 1.0)
+		draw_line(Vector2(draw_x + text_width + 8, line_y), Vector2(VIEWPORT_W - 20, line_y), line_color, 1.0)
 
 
 func _draw_boss_warning(t: float):
@@ -91,7 +92,7 @@ func _draw_boss_warning(t: float):
 	# Phase 3 (0.7-1.0): Fade out
 
 	var alpha: float
-	var font_size: int = 16
+	var font_size: int = UIColors.FONT_TITLE
 
 	if t < 0.1:
 		# Rapid flash in
@@ -116,13 +117,14 @@ func _draw_boss_warning(t: float):
 	# Red scan lines (horizontal bars sweeping)
 	if t > 0.05 and t < 0.7:
 		var scan_alpha = alpha * 0.15
+		var scan_color_base = UIColors.RED
 		for i in range(12):
 			var y_pos = fmod(float(i) * 40.0 + flash_timer * 80.0, 500.0) - 250.0
-			draw_rect(Rect2(-10, y_pos, VIEWPORT_W + 20, 2), Color(1.0, 0.0, 0.0, scan_alpha))
+			draw_rect(Rect2(-10, y_pos, VIEWPORT_W + 20, 2), Color(scan_color_base.r, 0.0, 0.0, scan_alpha))
 
 	# WARNING text
-	var text_color = Color(1.0, 0.1, 0.05, alpha)
-	var glow_color = Color(1.0, 0.0, 0.0, alpha * 0.5)
+	var text_color = Color(UIColors.BOSS_WARNING.r, UIColors.BOSS_WARNING.g, UIColors.BOSS_WARNING.b, alpha)
+	var glow_color = Color(UIColors.RED.r, 0.0, 0.0, alpha * 0.5)
 
 	var text_width = font.get_string_size(text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size).x
 	var draw_x = VIEWPORT_W * 0.5 - text_width * 0.5
@@ -143,10 +145,12 @@ func _draw_boss_warning(t: float):
 	if t > 0.05 and t < 0.8:
 		var line_alpha = alpha * 0.6
 		var line_y = draw_y + 6
-		draw_line(Vector2(10, line_y), Vector2(draw_x - 10, line_y), Color(1.0, 0.0, 0.0, line_alpha), 2.0)
-		draw_line(Vector2(draw_x + text_width + 10, line_y), Vector2(VIEWPORT_W - 10, line_y), Color(1.0, 0.0, 0.0, line_alpha), 2.0)
+		var danger_line = Color(UIColors.RED.r, 0.0, 0.0, line_alpha)
+		draw_line(Vector2(10, line_y), Vector2(draw_x - 10, line_y), danger_line, 2.0)
+		draw_line(Vector2(draw_x + text_width + 10, line_y), Vector2(VIEWPORT_W - 10, line_y), danger_line, 2.0)
 
 		# Second set above text
 		var line_y2 = draw_y - font_size - 4
-		draw_line(Vector2(10, line_y2), Vector2(draw_x - 10, line_y2), Color(1.0, 0.0, 0.0, line_alpha * 0.5), 1.0)
-		draw_line(Vector2(draw_x + text_width + 10, line_y2), Vector2(VIEWPORT_W - 10, line_y2), Color(1.0, 0.0, 0.0, line_alpha * 0.5), 1.0)
+		var danger_line_dim = Color(UIColors.RED.r, 0.0, 0.0, line_alpha * 0.5)
+		draw_line(Vector2(10, line_y2), Vector2(draw_x - 10, line_y2), danger_line_dim, 1.0)
+		draw_line(Vector2(draw_x + text_width + 10, line_y2), Vector2(VIEWPORT_W - 10, line_y2), danger_line_dim, 1.0)

@@ -278,7 +278,7 @@ func start_game():
 	# Setup and reset weapon manager
 	weapon_manager.setup(player, enemy_container)
 	weapon_manager.reset()
-	weapon_manager.set_physics_process(true)
+	weapon_manager.set_process(true)
 
 	# Setup upgrade menu with weapon_manager reference
 	upgrade_menu.weapon_manager = weapon_manager
@@ -363,8 +363,9 @@ func _on_wave_completed():
 		return
 	is_game_active = false
 	# Stop weapons and clear player bullets so in-flight projectiles don't kill boss during menu
-	weapon_manager.set_physics_process(false)
+	weapon_manager.set_process(false)
 	_clear_player_bullets()
+	_clear_effect_weapons()
 	if sfx_level_up.stream:
 		sfx_level_up.play()
 	upgrade_menu.show_upgrades()
@@ -381,7 +382,7 @@ func _on_upgrade_selected(upgrade_data: Dictionary):
 	hud.update_power(player.power_level)
 	upgrade_menu.hide()
 	is_game_active = true
-	weapon_manager.set_physics_process(true)
+	weapon_manager.set_process(true)
 	if sfx_accept.stream:
 		sfx_accept.play()
 	# Don't start next wave if boss is still alive
@@ -789,6 +790,20 @@ func _clear_player_bullets():
 	for bullet in bullet_container.get_children():
 		if is_instance_valid(bullet) and bullet.is_in_group("player_bullet"):
 			bullet.queue_free()
+
+
+func _clear_effect_weapons():
+	# Remove active effect weapon nodes (lightning, shockwave, orbital, drone, flamethrower)
+	for child in get_children():
+		if !is_instance_valid(child):
+			continue
+		var script = child.get_script()
+		if script == preload("res://scripts/weapons/effects/lightning_effect.gd"):
+			child.queue_free()
+		elif script == preload("res://scripts/weapons/effects/shockwave_effect.gd"):
+			child.queue_free()
+		elif script == preload("res://scripts/weapons/effects/flamethrower_effect.gd"):
+			child.queue_free()
 
 
 func _bullet_cancel(center_pos: Vector2):

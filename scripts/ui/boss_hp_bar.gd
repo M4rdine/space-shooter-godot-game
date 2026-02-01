@@ -270,7 +270,7 @@ func _draw_boss_name(bar_rect: Rect2) -> void:
 	if font == null:
 		return
 
-	var font_size := 8
+	var font_size := UIColors.FONT_SMALL
 	var text_width: float = font.get_string_size(boss_name, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size).x
 	var text_x: float = bar_rect.position.x + (bar_rect.size.x - text_width) * 0.5
 	var text_y: float = bar_rect.position.y - 3.0  # 3px above bar top
@@ -290,7 +290,7 @@ func _draw_warning_label(bar_rect: Rect2) -> void:
 	if font == null:
 		return
 
-	var font_size := 7
+	var font_size := UIColors.FONT_TINY
 	var label_text := "WARNING"
 	var text_width: float = font.get_string_size(label_text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size).x
 	var text_x: float = bar_rect.position.x + (bar_rect.size.x - text_width) * 0.5
