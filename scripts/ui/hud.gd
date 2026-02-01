@@ -59,49 +59,48 @@ func _ready():
 
 
 # ---------------------------------------------------------------------------
-# Score label: top-left, large 12px
+# Score label: top-left, large heading
 # ---------------------------------------------------------------------------
 func _setup_score_label():
 	if !score_label:
 		return
 	score_label.text = "SCORE: 0"
-	score_label.add_theme_font_size_override("font_size", 12)
-	score_label.add_theme_color_override("font_color", Color.WHITE)
+	score_label.add_theme_font_size_override("font_size", UIColors.FONT_HEADING)
+	score_label.add_theme_color_override("font_color", UIColors.HUD_SCORE)
 	score_label.add_theme_constant_override("outline_size", 2)
-	score_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	score_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
 	score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 
 
 # ---------------------------------------------------------------------------
-# Hi-score label: directly below score, 8px gray
+# Hi-score label: directly below score, small gray
 # ---------------------------------------------------------------------------
 func _create_hi_score_label():
 	hi_score_label = Label.new()
 	hi_score_label.text = "HI: 0"
-	hi_score_label.add_theme_font_size_override("font_size", 8)
-	hi_score_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.6))
+	hi_score_label.add_theme_font_size_override("font_size", UIColors.FONT_SMALL)
+	hi_score_label.add_theme_color_override("font_color", UIColors.HUD_HISCORE)
 	hi_score_label.add_theme_constant_override("outline_size", 2)
-	hi_score_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	hi_score_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
 	hi_score_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 
-	# Position below score label: x=MARGIN, y = MARGIN + 14 (score height ~14px)
+	# Position below score label
 	hi_score_label.position = Vector2(MARGIN, MARGIN + 14)
 	add_child(hi_score_label)
 
 
 # ---------------------------------------------------------------------------
-# Wave label: top-right, gold 10px badge
+# Wave label: top-right, cyan badge
 # ---------------------------------------------------------------------------
 func _setup_wave_label():
 	if !wave_label:
 		return
 	wave_label.text = "WAVE 1"
-	wave_label.add_theme_font_size_override("font_size", 10)
-	wave_label.add_theme_color_override("font_color", Color(0.3, 0.8, 1.0))
+	wave_label.add_theme_font_size_override("font_size", UIColors.FONT_BODY)
+	wave_label.add_theme_color_override("font_color", UIColors.HUD_WAVE)
 	wave_label.add_theme_constant_override("outline_size", 2)
-	wave_label.add_theme_color_override("font_outline_color", Color.BLACK)
-	# Override the scene tree positioning: move wave label to top-right
-	# We reparent it out of the VBox and position it absolutely
+	wave_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
+	# Reparent out of VBox and position absolutely at top-right
 	var parent = wave_label.get_parent()
 	if parent:
 		parent.remove_child(wave_label)
@@ -127,10 +126,10 @@ func _create_right_stats():
 	# Power label
 	power_label = Label.new()
 	power_label.text = "POWER: Lv.1"
-	power_label.add_theme_font_size_override("font_size", 8)
-	power_label.add_theme_color_override("font_color", Color(0.4, 0.8, 1.0))
+	power_label.add_theme_font_size_override("font_size", UIColors.FONT_SMALL)
+	power_label.add_theme_color_override("font_color", UIColors.HUD_POWER)
 	power_label.add_theme_constant_override("outline_size", 2)
-	power_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	power_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
 	power_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	power_label.position = Vector2(right_x - 120, start_y)
 	power_label.size = Vector2(120, 10)
@@ -159,19 +158,19 @@ func _create_right_stats():
 	# Bomb label
 	bomb_label = Label.new()
 	bomb_label.text = "x3"
-	bomb_label.add_theme_font_size_override("font_size", 8)
-	bomb_label.add_theme_color_override("font_color", Color(0.4, 0.6, 1.0))
+	bomb_label.add_theme_font_size_override("font_size", UIColors.FONT_SMALL)
+	bomb_label.add_theme_color_override("font_color", UIColors.HUD_BOMBS)
 	bomb_label.add_theme_constant_override("outline_size", 2)
-	bomb_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	bomb_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
 	bomb_hbox.add_child(bomb_label)
 
 	# Graze label
 	graze_label = Label.new()
 	graze_label.text = "GRAZE: 0"
-	graze_label.add_theme_font_size_override("font_size", 8)
-	graze_label.add_theme_color_override("font_color", Color(0.75, 0.75, 1.0))
+	graze_label.add_theme_font_size_override("font_size", UIColors.FONT_SMALL)
+	graze_label.add_theme_color_override("font_color", UIColors.HUD_GRAZE)
 	graze_label.add_theme_constant_override("outline_size", 2)
-	graze_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	graze_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
 	graze_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	graze_label.position = Vector2(right_x - 120, start_y + 24)
 	graze_label.size = Vector2(120, 10)
@@ -199,10 +198,10 @@ func _setup_hp_container():
 func _create_counter_label():
 	counter_label = Label.new()
 	counter_label.text = ""
-	counter_label.add_theme_font_size_override("font_size", 10)
-	counter_label.add_theme_color_override("font_color", Color(0.3, 0.9, 1.0))
+	counter_label.add_theme_font_size_override("font_size", UIColors.FONT_BODY)
+	counter_label.add_theme_color_override("font_color", UIColors.CYAN)
 	counter_label.add_theme_constant_override("outline_size", 2)
-	counter_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	counter_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
 	counter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	# Center horizontally at top
 	counter_label.anchor_left = 0.5
@@ -222,10 +221,10 @@ func _create_counter_label():
 func _create_timer_label():
 	timer_label = Label.new()
 	timer_label.text = "5:00"
-	timer_label.add_theme_font_size_override("font_size", 12)
-	timer_label.add_theme_color_override("font_color", Color(1.0, 1.0, 0.3))
+	timer_label.add_theme_font_size_override("font_size", UIColors.FONT_HEADING)
+	timer_label.add_theme_color_override("font_color", UIColors.HUD_TIMER_SAFE)
 	timer_label.add_theme_constant_override("outline_size", 2)
-	timer_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	timer_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
 	timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	timer_label.anchor_left = 0.5
 	timer_label.anchor_right = 0.5
@@ -263,7 +262,6 @@ func _create_weapon_panel():
 	weapon_panel.anchor_bottom = 1.0
 	weapon_panel.offset_top = -42
 	weapon_panel.offset_bottom = -MARGIN
-	# Will auto-center because left/right offsets are symmetric
 	weapon_panel.offset_left = -100
 	weapon_panel.offset_right = 100
 	weapon_panel.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -277,10 +275,10 @@ func _create_fever_indicator():
 	# Glow label (behind main text for glow/shadow effect)
 	fever_glow_label = Label.new()
 	fever_glow_label.text = ""
-	fever_glow_label.add_theme_font_size_override("font_size", 14)
-	fever_glow_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.0, 0.6))
+	fever_glow_label.add_theme_font_size_override("font_size", UIColors.FONT_HERO)
+	fever_glow_label.add_theme_color_override("font_color", Color(UIColors.FEVER_GLOW.r, UIColors.FEVER_GLOW.g, UIColors.FEVER_GLOW.b, 0.6))
 	fever_glow_label.add_theme_constant_override("outline_size", 6)
-	fever_glow_label.add_theme_color_override("font_outline_color", Color(1.0, 0.2, 0.0, 0.4))
+	fever_glow_label.add_theme_color_override("font_outline_color", Color(UIColors.FEVER_GLOW.r, UIColors.FEVER_GLOW.g - 0.1, UIColors.FEVER_GLOW.b, 0.4))
 	fever_glow_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	fever_glow_label.anchor_left = 0.5
 	fever_glow_label.anchor_right = 0.5
@@ -296,10 +294,10 @@ func _create_fever_indicator():
 	# Main fever/combo label
 	fever_label = Label.new()
 	fever_label.text = ""
-	fever_label.add_theme_font_size_override("font_size", 8)
-	fever_label.add_theme_color_override("font_color", Color(0.0, 1.0, 1.0))
+	fever_label.add_theme_font_size_override("font_size", UIColors.FONT_SMALL)
+	fever_label.add_theme_color_override("font_color", UIColors.FEVER_COMBO)
 	fever_label.add_theme_constant_override("outline_size", 2)
-	fever_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	fever_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
 	fever_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	fever_label.anchor_left = 0.5
 	fever_label.anchor_right = 0.5
@@ -314,7 +312,7 @@ func _create_fever_indicator():
 
 	# Screen border glow overlay (subtle red edges during fever)
 	fever_overlay = ColorRect.new()
-	fever_overlay.color = Color(1.0, 0.1, 0.0, 0.0)
+	fever_overlay.color = Color(UIColors.FEVER_OVERLAY.r, UIColors.FEVER_OVERLAY.g, UIColors.FEVER_OVERLAY.b, 0.0)
 	fever_overlay.anchor_left = 0.0
 	fever_overlay.anchor_right = 1.0
 	fever_overlay.anchor_top = 0.0
@@ -360,8 +358,8 @@ func _process(delta: float):
 		if fever_label:
 			fever_label.visible = true
 			fever_label.text = "FEVER!"
-			fever_label.add_theme_font_size_override("font_size", 14)
-			fever_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.1, alpha))
+			fever_label.add_theme_font_size_override("font_size", UIColors.FONT_HERO)
+			fever_label.add_theme_color_override("font_color", Color(UIColors.FEVER_ACTIVE.r, UIColors.FEVER_ACTIVE.g, UIColors.FEVER_ACTIVE.b, alpha))
 			fever_label.scale = Vector2(scale_factor, scale_factor)
 			fever_label.pivot_offset = fever_label.size * 0.5
 
@@ -369,8 +367,8 @@ func _process(delta: float):
 			fever_glow_label.visible = true
 			fever_glow_label.text = "FEVER!"
 			var glow_alpha: float = 0.3 + pulse * 0.2
-			fever_glow_label.add_theme_color_override("font_color", Color(1.0, 0.3, 0.0, glow_alpha))
-			fever_glow_label.add_theme_color_override("font_outline_color", Color(1.0, 0.15, 0.0, glow_alpha * 0.7))
+			fever_glow_label.add_theme_color_override("font_color", Color(UIColors.FEVER_GLOW.r, UIColors.FEVER_GLOW.g, UIColors.FEVER_GLOW.b, glow_alpha))
+			fever_glow_label.add_theme_color_override("font_outline_color", Color(UIColors.FEVER_GLOW.r, UIColors.FEVER_GLOW.g - 0.05, UIColors.FEVER_GLOW.b, glow_alpha * 0.7))
 			fever_glow_label.scale = Vector2(scale_factor, scale_factor)
 			fever_glow_label.pivot_offset = fever_glow_label.size * 0.5
 
@@ -378,7 +376,7 @@ func _process(delta: float):
 		if fever_overlay:
 			fever_overlay.visible = true
 			var border_alpha: float = 0.03 + abs(pulse) * 0.03
-			fever_overlay.color = Color(1.0, 0.1, 0.0, border_alpha)
+			fever_overlay.color = Color(UIColors.FEVER_OVERLAY.r, UIColors.FEVER_OVERLAY.g, UIColors.FEVER_OVERLAY.b, border_alpha)
 
 	elif combo_count > 0:
 		# Show combo counter with opacity proportional to combo/12
@@ -387,8 +385,8 @@ func _process(delta: float):
 		if fever_label:
 			fever_label.visible = true
 			fever_label.text = "COMBO x" + str(combo_count)
-			fever_label.add_theme_font_size_override("font_size", 8)
-			fever_label.add_theme_color_override("font_color", Color(0.0, 1.0, 1.0, opacity))
+			fever_label.add_theme_font_size_override("font_size", UIColors.FONT_SMALL)
+			fever_label.add_theme_color_override("font_color", Color(UIColors.FEVER_COMBO.r, UIColors.FEVER_COMBO.g, UIColors.FEVER_COMBO.b, opacity))
 			fever_label.scale = Vector2.ONE
 			fever_label.pivot_offset = Vector2.ZERO
 
@@ -439,7 +437,7 @@ func update_hp(current: int, max_hp: int):
 		heart.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		heart.custom_minimum_size = Vector2(14, 14)
 		if i >= current:
-			heart.modulate = Color(0.3, 0.3, 0.3, 0.5)
+			heart.modulate = UIColors.HUD_HEART_EMPTY
 		hp_container.add_child(heart)
 
 
@@ -448,9 +446,9 @@ func update_counter(stage: int, total: int, color_str: String):
 		return
 	counter_label.text = str(stage)
 	if color_str == "GREEN":
-		counter_label.add_theme_color_override("font_color", Color(0.3, 0.9, 1.0))
+		counter_label.add_theme_color_override("font_color", UIColors.CYAN)
 	else:
-		counter_label.add_theme_color_override("font_color", Color(0.3, 0.6, 1.0))
+		counter_label.add_theme_color_override("font_color", UIColors.HUD_BOMBS)
 
 
 func update_graze(count: int):
@@ -476,13 +474,13 @@ func update_timer(time_remaining: float):
 	timer_label.text = "%d:%02d" % [mins, secs]
 	# Color changes: yellow > 120s, orange 60-120s, red < 60s
 	if time_remaining > 120.0:
-		timer_label.add_theme_color_override("font_color", Color(1.0, 1.0, 0.3))
+		timer_label.add_theme_color_override("font_color", UIColors.HUD_TIMER_SAFE)
 	elif time_remaining > 60.0:
-		timer_label.add_theme_color_override("font_color", Color(1.0, 0.6, 0.1))
+		timer_label.add_theme_color_override("font_color", UIColors.HUD_TIMER_WARN)
 	else:
 		# Pulsing red for urgency
 		var pulse = 0.7 + 0.3 * abs(sin(time_remaining * 3.0))
-		timer_label.add_theme_color_override("font_color", Color(1.0, 0.15, 0.15, pulse))
+		timer_label.add_theme_color_override("font_color", Color(UIColors.HUD_TIMER_DANGER.r, UIColors.HUD_TIMER_DANGER.g, UIColors.HUD_TIMER_DANGER.b, pulse))
 
 
 func update_weapons(weapon_manager: Node):
@@ -513,10 +511,10 @@ func update_weapons(weapon_manager: Node):
 
 
 func _create_weapon_icon(data: Dictionary, level: int, evolved: bool, weapon_id: String = "") -> Control:
-	var container = PanelContainer.new()
-	container.custom_minimum_size = Vector2(44, 34)
+	var container_node = PanelContainer.new()
+	container_node.custom_minimum_size = Vector2(44, 34)
 	if weapon_id != "":
-		container.set_meta("weapon_id", weapon_id)
+		container_node.set_meta("weapon_id", weapon_id)
 
 	# Determine glow color from weapon data
 	var glow: Color = data.get("glow_color", Color.WHITE)
@@ -525,7 +523,7 @@ func _create_weapon_icon(data: Dictionary, level: int, evolved: bool, weapon_id:
 	var style = StyleBoxFlat.new()
 	style.bg_color = Color(glow.r * 0.2, glow.g * 0.2, glow.b * 0.2, 0.9)
 	if evolved:
-		style.border_color = Color(1.0, 0.85, 0.2)  # Gold border for evolved
+		style.border_color = UIColors.GOLD
 		style.set_border_width_all(2)
 	else:
 		style.border_color = glow
@@ -535,12 +533,12 @@ func _create_weapon_icon(data: Dictionary, level: int, evolved: bool, weapon_id:
 	style.content_margin_right = 2
 	style.content_margin_top = 1
 	style.content_margin_bottom = 1
-	container.add_theme_stylebox_override("panel", style)
+	container_node.add_theme_stylebox_override("panel", style)
 
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 0)
 	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	container.add_child(vbox)
+	container_node.add_child(vbox)
 
 	# Procedural weapon icon via _draw()
 	var icon_draw = Control.new()
@@ -548,11 +546,11 @@ func _create_weapon_icon(data: Dictionary, level: int, evolved: bool, weapon_id:
 	icon_draw.setup(data.get("id", ""), glow, evolved)
 	vbox.add_child(icon_draw)
 
-	# Level indicator as dots (●●●○○) instead of "Lv3"
+	# Level indicator as dots (●●●○○)
 	var lv_label = Label.new()
 	if evolved:
 		lv_label.text = "\u2605MAX"
-		lv_label.add_theme_color_override("font_color", Color(1.0, 0.85, 0.2))
+		lv_label.add_theme_color_override("font_color", UIColors.GOLD)
 	else:
 		var max_level: int = data.get("max_level", 5)
 		var dots: String = ""
@@ -560,26 +558,13 @@ func _create_weapon_icon(data: Dictionary, level: int, evolved: bool, weapon_id:
 			dots += "\u25cf" if i < level else "\u25cb"
 		lv_label.text = dots
 		lv_label.add_theme_color_override("font_color", glow)
-	lv_label.add_theme_font_size_override("font_size", 5)
+	lv_label.add_theme_font_size_override("font_size", UIColors.FONT_TINY)
 	lv_label.add_theme_constant_override("outline_size", 1)
-	lv_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	lv_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
 	lv_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(lv_label)
 
-	# Weapon name abbreviation label (tiny, below dots)
-	var display_name: String = data.get("display_name", "")
-	if display_name != "":
-		var name_abbrev_label = Label.new()
-		var abbrev_len: int = mini(4, display_name.length())
-		name_abbrev_label.text = display_name.substr(0, abbrev_len).to_upper()
-		name_abbrev_label.add_theme_font_size_override("font_size", 4)
-		name_abbrev_label.add_theme_color_override("font_color", Color(glow.r, glow.g, glow.b, 0.6))
-		name_abbrev_label.add_theme_constant_override("outline_size", 1)
-		name_abbrev_label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.4))
-		name_abbrev_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		vbox.add_child(name_abbrev_label)
-
-	return container
+	return container_node
 
 
 func notify_weapon_upgrade(weapon_id: String):

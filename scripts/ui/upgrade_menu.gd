@@ -8,6 +8,7 @@ signal upgrade_selected(data: Dictionary)
 
 var upgrade_buttons: Array = []
 var weapon_manager: Node = null
+var _is_animating: bool = false
 
 # Utility upgrades (non-weapon)
 const UTILITY_UPGRADES = [
@@ -61,19 +62,31 @@ const VIEWPORT_W = 320
 func _ready():
 	hide()
 	reset_levels()
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	_style_panel()
+
+
+func _unhandled_input(event: InputEvent):
+	if not visible or _is_animating:
+		return
+	# Keyboard/gamepad navigation between cards
+	if event.is_action_pressed("ui_down") or event.is_action_pressed("ui_up"):
+		var focused = get_viewport().gui_get_focus_owner()
+		if focused == null and upgrade_buttons.size() > 0:
+			_get_card_button(upgrade_buttons[0]).grab_focus()
+			get_viewport().set_input_as_handled()
 
 
 func _style_panel():
 	var panel = $Panel
 	if panel:
 		var style = StyleBoxFlat.new()
-		style.bg_color = Color(0.02, 0.02, 0.06, 0.9)
+		style.bg_color = UIColors.PANEL_BG
 		style.set_content_margin_all(20)
 		panel.add_theme_stylebox_override("panel", style)
 	if title_label:
-		title_label.add_theme_font_size_override("font_size", 14)
-		title_label.add_theme_color_override("font_color", Color(0.3, 0.8, 1.0))
+		title_label.add_theme_font_size_override("font_size", UIColors.FONT_HERO)
+		title_label.add_theme_color_override("font_color", UIColors.CYAN)
 		title_label.add_theme_color_override("font_outline_color", Color(0.0, 0.1, 0.2))
 		title_label.add_theme_constant_override("outline_size", 3)
 
@@ -85,6 +98,10 @@ func reset_levels():
 
 
 func show_upgrades():
+	if _is_animating:
+		return
+	_is_animating = true
+
 	var choices: Array = []
 
 	# Build weapon pool
@@ -138,8 +155,10 @@ func show_upgrades():
 		var card = _create_upgrade_card(option)
 		container.add_child(card)
 		upgrade_buttons.append(card)
-		# Set initial state for entry animation (use modulate only, not position)
 		card.modulate.a = 0.0
+
+	# Set up keyboard focus chain between cards
+	_setup_focus_chain()
 
 	show()
 	get_tree().paused = true
@@ -153,15 +172,53 @@ func show_upgrades():
 		title_tween.set_trans(Tween.TRANS_CUBIC)
 		title_tween.tween_property(title_label, "modulate:a", 1.0, 0.3)
 
-	# Animate cards with stagger (fade only, no position manipulation in managed layout)
+	# Animate cards with stagger (fade only)
 	for i in range(upgrade_buttons.size()):
 		var card = upgrade_buttons[i]
 		var tween = create_tween()
 		tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
 		tween.set_ease(Tween.EASE_OUT)
 		tween.set_trans(Tween.TRANS_BACK)
-		tween.tween_interval(i * 0.15)  # Stagger delay
+		tween.tween_interval(i * 0.15)
 		tween.tween_property(card, "modulate:a", 1.0, 0.25)
+		# After last card animates in, unlock input and grab focus
+		if i == upgrade_buttons.size() - 1:
+			tween.tween_callback(func():
+				_is_animating = false
+				if upgrade_buttons.size() > 0 and is_instance_valid(upgrade_buttons[0]):
+					var btn = _get_card_button(upgrade_buttons[0])
+					if btn:
+						btn.grab_focus()
+			)
+
+
+func _setup_focus_chain():
+	for i in range(upgrade_buttons.size()):
+		var btn = _get_card_button(upgrade_buttons[i])
+		if not btn:
+			continue
+		# Previous neighbor
+		var prev_idx = i - 1 if i > 0 else upgrade_buttons.size() - 1
+		var prev_btn = _get_card_button(upgrade_buttons[prev_idx])
+		# Next neighbor
+		var next_idx = i + 1 if i < upgrade_buttons.size() - 1 else 0
+		var next_btn = _get_card_button(upgrade_buttons[next_idx])
+
+		if prev_btn:
+			btn.focus_neighbor_top = prev_btn.get_path()
+			btn.focus_neighbor_left = prev_btn.get_path()
+		if next_btn:
+			btn.focus_neighbor_bottom = next_btn.get_path()
+			btn.focus_neighbor_right = next_btn.get_path()
+
+
+func _get_card_button(card: PanelContainer) -> Button:
+	if not is_instance_valid(card):
+		return null
+	for child in card.get_children():
+		if child is Button:
+			return child
+	return null
 
 
 func _create_upgrade_card(option: Dictionary) -> PanelContainer:
@@ -179,39 +236,33 @@ func _create_upgrade_card(option: Dictionary) -> PanelContainer:
 
 	match card_type:
 		"new_weapon":
-			border_color = option.get("glow_color", Color(0.3, 0.8, 1.0))
+			border_color = option.get("glow_color", UIColors.CYAN)
 			bg_color = Color(border_color.r * 0.15, border_color.g * 0.15, border_color.b * 0.15, 0.95)
 			tag_text = "NEW"
-			tag_color = Color(0.3, 1.0, 0.3)
+			tag_color = UIColors.CARD_TAG_NEW
 		"level_up":
-			border_color = option.get("glow_color", Color(0.3, 0.8, 1.0))
+			border_color = option.get("glow_color", UIColors.CYAN)
 			bg_color = Color(border_color.r * 0.12, border_color.g * 0.12, border_color.b * 0.12, 0.95)
 			tag_text = option.get("level_tag", "")
-			tag_color = Color(1.0, 0.9, 0.2)
+			tag_color = UIColors.GOLD
 		"evolution":
-			border_color = Color(1.0, 0.75, 0.2)
+			border_color = UIColors.CARD_BORDER_EVOLUTION
 			bg_color = Color(0.12, 0.1, 0.04, 0.95)
 			tag_text = "EVOLVE"
-			tag_color = Color(1.0, 0.75, 0.2)
+			tag_color = UIColors.CARD_TAG_EVOLVE
 		_:  # utility
-			border_color = Color(0.5, 0.5, 0.6)
-			bg_color = Color(0.08, 0.08, 0.12, 0.95)
+			border_color = UIColors.CARD_BORDER_UTILITY
+			bg_color = UIColors.CARD_BG_UTILITY
 			tag_text = option.get("level_tag", "")
-			tag_color = Color(0.7, 0.7, 0.8)
+			tag_color = UIColors.CARD_TAG_LEVEL
 
-	# StyleBox
+	# Normal StyleBox
 	var style = StyleBoxFlat.new()
 	style.bg_color = bg_color
 	var bw = 3 if card_type == "evolution" else 2
-	style.border_width_left = bw
-	style.border_width_right = bw
-	style.border_width_top = bw
-	style.border_width_bottom = bw
+	style.set_border_width_all(bw)
 	style.border_color = border_color
-	style.corner_radius_top_left = 4
-	style.corner_radius_top_right = 4
-	style.corner_radius_bottom_left = 4
-	style.corner_radius_bottom_right = 4
+	style.set_corner_radius_all(4)
 	style.content_margin_left = 8
 	style.content_margin_right = 8
 	style.content_margin_top = 6
@@ -247,8 +298,8 @@ func _create_upgrade_card(option: Dictionary) -> PanelContainer:
 
 	var name_label = Label.new()
 	name_label.text = option.get("display_name", "???")
-	name_label.add_theme_font_size_override("font_size", 10)
-	var name_color = border_color if card_type != "utility" else Color.WHITE
+	name_label.add_theme_font_size_override("font_size", UIColors.FONT_BODY)
+	var name_color = border_color if card_type != "utility" else UIColors.TEXT_WHITE
 	name_label.add_theme_color_override("font_color", name_color)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.clip_text = true
@@ -261,14 +312,14 @@ func _create_upgrade_card(option: Dictionary) -> PanelContainer:
 		match card_type:
 			"new_weapon":
 				tag_style.bg_color = Color(0.05, 0.25, 0.05, 0.95)
-				tag_style.border_color = Color(0.3, 0.8, 0.3, 0.8)
+				tag_style.border_color = Color(UIColors.GREEN.r, UIColors.GREEN.g, UIColors.GREEN.b, 0.8)
 			"evolution":
 				tag_style.bg_color = Color(0.25, 0.18, 0.0, 0.95)
-				tag_style.border_color = Color(1.0, 0.75, 0.2, 0.8)
+				tag_style.border_color = Color(UIColors.CARD_BORDER_EVOLUTION.r, UIColors.CARD_BORDER_EVOLUTION.g, UIColors.CARD_BORDER_EVOLUTION.b, 0.8)
 				tag_text = "★ " + tag_text
 			_:
 				tag_style.bg_color = Color(0.1, 0.1, 0.15, 0.9)
-				tag_style.border_color = Color(0.5, 0.5, 0.6, 0.5)
+				tag_style.border_color = Color(UIColors.CARD_BORDER_UTILITY.r, UIColors.CARD_BORDER_UTILITY.g, UIColors.CARD_BORDER_UTILITY.b, 0.5)
 
 		tag_style.set_border_width_all(1)
 		tag_style.set_corner_radius_all(3)
@@ -280,11 +331,11 @@ func _create_upgrade_card(option: Dictionary) -> PanelContainer:
 
 		var tag_label = Label.new()
 		tag_label.text = tag_text
-		var tag_font_size = 10 if card_type == "evolution" else 9
+		var tag_font_size = UIColors.FONT_BODY if card_type == "evolution" else UIColors.FONT_SMALL
 		tag_label.add_theme_font_size_override("font_size", tag_font_size)
 		tag_label.add_theme_color_override("font_color", tag_color)
 		tag_label.add_theme_constant_override("outline_size", 1)
-		tag_label.add_theme_color_override("font_outline_color", Color.BLACK)
+		tag_label.add_theme_color_override("font_outline_color", UIColors.OUTLINE_BLACK)
 		tag_container.add_child(tag_label)
 
 		tag_container.size_flags_vertical = Control.SIZE_SHRINK_CENTER
@@ -293,36 +344,56 @@ func _create_upgrade_card(option: Dictionary) -> PanelContainer:
 	# Description
 	var desc_label = Label.new()
 	desc_label.text = option.get("description", "")
-	desc_label.add_theme_font_size_override("font_size", 8)
-	desc_label.add_theme_color_override("font_color", Color(0.6, 0.6, 0.7))
+	desc_label.add_theme_font_size_override("font_size", UIColors.FONT_SMALL)
+	desc_label.add_theme_color_override("font_color", UIColors.CARD_DESC)
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD
 	desc_label.clip_text = true
 	desc_label.custom_minimum_size.x = max_w - 60
 	vbox.add_child(desc_label)
 
-	# Click button (invisible overlay)
+	# Click button (invisible overlay, also handles keyboard focus)
 	var click_btn = Button.new()
 	click_btn.flat = true
 	click_btn.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
-	# Make it fill the card using size flags (not anchors in managed layout)
 	click_btn.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	click_btn.mouse_filter = Control.MOUSE_FILTER_PASS
+	click_btn.focus_mode = Control.FOCUS_ALL
 	click_btn.pressed.connect(_on_upgrade_chosen.bind(option))
+
+	# Focus style for keyboard navigation visibility
+	var focus_style = StyleBoxFlat.new()
+	focus_style.bg_color = Color(0, 0, 0, 0)
+	focus_style.border_color = UIColors.CYAN
+	focus_style.set_border_width_all(2)
+	focus_style.set_corner_radius_all(4)
+	click_btn.add_theme_stylebox_override("focus", focus_style)
+	# Keep normal/hover/pressed transparent
+	var empty_style = StyleBoxEmpty.new()
+	click_btn.add_theme_stylebox_override("normal", empty_style)
+	click_btn.add_theme_stylebox_override("hover", empty_style)
+	click_btn.add_theme_stylebox_override("pressed", empty_style)
+
 	card.add_child(click_btn)
 
 	# Hover effects (color only, no scale in managed layout)
 	var original_bg = bg_color
 	var hover_bg = Color(bg_color.r + 0.06, bg_color.g + 0.06, bg_color.b + 0.08, bg_color.a)
-	card.mouse_entered.connect(func():
+
+	# Also highlight on keyboard focus
+	var _apply_highlight = func():
 		style.border_color = border_color.lightened(0.4)
 		style.bg_color = hover_bg
 		card.add_theme_stylebox_override("panel", style)
-	)
-	card.mouse_exited.connect(func():
+
+	var _remove_highlight = func():
 		style.border_color = border_color
 		style.bg_color = original_bg
 		card.add_theme_stylebox_override("panel", style)
-	)
+
+	card.mouse_entered.connect(_apply_highlight)
+	card.mouse_exited.connect(_remove_highlight)
+	click_btn.focus_entered.connect(_apply_highlight)
+	click_btn.focus_exited.connect(_remove_highlight)
 
 	return card
 
@@ -409,9 +480,30 @@ func _build_utility_options() -> Array:
 
 
 func _on_upgrade_chosen(data: Dictionary):
+	if _is_animating:
+		return
+	_is_animating = true
+
 	if data.category == "utility":
 		upgrade_levels[data.type] = upgrade_levels.get(data.type, 0) + 1
 
-	get_tree().paused = false
-	hide()
-	upgrade_selected.emit(data)
+	# Fade-out animation before closing
+	var tween = create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_CUBIC)
+
+	# Fade out all cards
+	for i in range(upgrade_buttons.size()):
+		var card = upgrade_buttons[i]
+		if is_instance_valid(card):
+			tween.parallel().tween_property(card, "modulate:a", 0.0, 0.15)
+	if title_label:
+		tween.parallel().tween_property(title_label, "modulate:a", 0.0, 0.15)
+
+	tween.tween_callback(func():
+		_is_animating = false
+		get_tree().paused = false
+		hide()
+		upgrade_selected.emit(data)
+	)

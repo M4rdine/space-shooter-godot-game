@@ -12,6 +12,7 @@ var blink_timer: float = 0.0
 var floor_sprite: Sprite2D
 var ship_sprite: Sprite2D
 var ship_bob_time: float = 0.0
+var _transitioning: bool = false
 
 ## Parallax star data: Array of {pos: Vector2, speed: float, size: float, color: Color}
 var stars: Array[Dictionary] = []
@@ -99,17 +100,17 @@ func _build_ship_preview():
 func _style_labels():
 	if title_label:
 		title_label.add_theme_font_size_override("font_size", 22)
-		title_label.add_theme_color_override("font_color", Color(0.2, 0.75, 1.0))
+		title_label.add_theme_color_override("font_color", UIColors.CYAN)
 		title_label.add_theme_constant_override("outline_size", 4)
 		title_label.add_theme_color_override("font_outline_color", Color(0.0, 0.1, 0.3))
 
 	if subtitle:
-		subtitle.add_theme_font_size_override("font_size", 8)
+		subtitle.add_theme_font_size_override("font_size", UIColors.FONT_SMALL)
 		subtitle.add_theme_color_override("font_color", Color(0.8, 0.9, 1.0))
 
 	if credits_label:
-		credits_label.add_theme_font_size_override("font_size", 6)
-		credits_label.add_theme_color_override("font_color", Color(0.4, 0.45, 0.55))
+		credits_label.add_theme_font_size_override("font_size", UIColors.FONT_TINY)
+		credits_label.add_theme_color_override("font_color", UIColors.TEXT_DIM)
 
 
 func _process(delta: float):
@@ -180,7 +181,24 @@ func _draw():
 
 
 func _input(event: InputEvent):
-	if event.is_action_pressed("ui_accept"):
+	if event.is_action_pressed("ui_accept") and not _transitioning:
+		_transitioning = true
+		# Fade out music and screen before transitioning
+		var fade_rect = ColorRect.new()
+		fade_rect.color = Color(0, 0, 0, 0)
+		fade_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+		fade_rect.z_index = 100
+		fade_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(fade_rect)
+
+		var tween = create_tween()
+		tween.set_ease(Tween.EASE_IN)
+		tween.set_trans(Tween.TRANS_CUBIC)
+		tween.tween_property(fade_rect, "color:a", 1.0, 0.4)
 		if bg_music and bg_music.playing:
-			bg_music.stop()
-		get_tree().change_scene_to_file("res://scenes/game.tscn")
+			tween.parallel().tween_property(bg_music, "volume_db", -40.0, 0.4)
+		tween.tween_callback(func():
+			if bg_music and bg_music.playing:
+				bg_music.stop()
+			get_tree().change_scene_to_file("res://scenes/game.tscn")
+		)

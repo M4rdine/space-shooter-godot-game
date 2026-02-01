@@ -843,9 +843,14 @@ func _on_player_died():
 	_crossfade_music(music_adventure)
 	if sfx_game_over.stream:
 		sfx_game_over.play()
-	var extra = _build_extra_stats()
-	game_over_screen.show_game_over(score, current_wave, extra)
-	game_over_screen.show_weapon_build(weapon_manager)
+	# Delay before showing game over screen for dramatic effect
+	var delay_tween = create_tween()
+	delay_tween.tween_interval(1.2)
+	delay_tween.tween_callback(func():
+		var extra = _build_extra_stats()
+		game_over_screen.show_game_over(score, current_wave, extra)
+		game_over_screen.show_weapon_build(weapon_manager)
+	)
 
 
 func _on_bomb_activated():
@@ -935,7 +940,21 @@ func _on_restart():
 
 func _on_quit():
 	Engine.time_scale = 1.0
-	get_tree().change_scene_to_file("res://scenes/main.tscn")
+	# Fade to black before returning to title
+	var fade_rect = ColorRect.new()
+	fade_rect.color = Color(0, 0, 0, 0)
+	fade_rect.z_index = 200
+	fade_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fade_rect.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(fade_rect)
+	var tween = create_tween()
+	tween.set_pause_mode(Tween.TWEEN_PAUSE_PROCESS)
+	tween.set_ease(Tween.EASE_IN)
+	tween.set_trans(Tween.TRANS_CUBIC)
+	tween.tween_property(fade_rect, "color:a", 1.0, 0.3)
+	tween.tween_callback(func():
+		get_tree().change_scene_to_file("res://scenes/main.tscn")
+	)
 
 
 func spawn_death_effect(pos: Vector2):
